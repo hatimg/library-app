@@ -1,4 +1,4 @@
-package com.assignment.library.library_mgmt_app;
+package com.assignment.library;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

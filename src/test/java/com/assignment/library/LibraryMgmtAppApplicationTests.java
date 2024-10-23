@@ -1,4 +1,4 @@
-package com.assignment.library.library_mgmt_app;
+package com.assignment.library;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
