@@ -1,3 +1,14 @@
 spring:
   application:
-     name: libraryMgmtApp
+     name: Library Mgmt App
+  datasource:
+    url: jdbc:h2:mem:libraryDb
+  h2:
+    console.enabled: true
+
+springdoc:
+  api-docs:
+    path: /library-api-docs
+
+server:
+  port: 9090
