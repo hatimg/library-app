@@ -2,9 +2,7 @@ package com.assignment.library.rest;
 
 import com.assignment.library.model.dto.BookDto;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +13,8 @@ import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpStatus.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class LibraryControllerTest {
-
-    protected static final String AUTHOR_NAME = "My Author";
-    protected static final String BOOK_TITLE = "My Title";
-    protected static final int PUBLICATION_YEAR = 2022;
-
-    @Autowired
-    protected TestRestTemplate testRestTemplate;
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class LibraryControllerIT extends AbstractLibraryControllerIT {
 
     @Test
     void shouldAddANewBook() {

@@ -4,7 +4,9 @@ import com.assignment.library.exception.BookAlreadyExistsException;
 import com.assignment.library.exception.BookNotAvailableException;
 import com.assignment.library.exception.BookNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -49,6 +51,13 @@ public class LibraryExceptionHandler {
         );
         log.error("Validations failed with following errors : {}", errorMap);
         return errorMap;
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<String> handleConcurrentUpdateErrors(OptimisticLockingFailureException exception) {
+        log.error("Concurrent modification detected on {}", exception.getCause().getMessage());
+        log.error(exception.getCause().getMessage(), exception) ;
+        return new ResponseEntity<>(exception.getCause().getMessage(), HttpStatus.CONFLICT);
     }
 
 
