@@ -1,6 +1,7 @@
 package com.assignment.library.service;
 
 import com.assignment.library.exception.BookAlreadyExistsException;
+import com.assignment.library.exception.BookNotAvailableException;
 import com.assignment.library.exception.BookNotFoundException;
 import com.assignment.library.model.dto.BookDto;
 import com.assignment.library.model.entity.Book;
@@ -135,5 +136,45 @@ class LibraryServiceImplTest {
 
         assertThrows(BookNotFoundException.class, () -> libraryService.removeBook(isbn));
     }
+
+    @Test
+    void shouldBorrowBookSuccessfully() {
+        String isbn = "1234567890";
+        Book book = new Book(isbn, "Some Title", "John Doe", 2020, 5, 0L);
+
+        when(mockBookRepository.findById(isbn)).thenReturn(Optional.of(book));
+        BookDto bookDto = new BookDto(isbn, "Some Title", "John Doe", 2020, 4);
+        when(mockBookRepository.save(any(Book.class))).thenReturn(book);
+
+        BookDto result = libraryService.borrowBook(isbn);
+
+        assertEquals(bookDto, result);
+        assertEquals(4, book.getAvailableCopies());
+    }
+
+
+    @Test
+    void shouldReturnBookSuccessfully() {
+        String isbn = "1234567890";
+        Book book = new Book(isbn, "Some Title", "John Doe", 2020, 5, 0L);
+
+        when(mockBookRepository.findById(isbn)).thenReturn(Optional.of(book));
+        when(mockBookRepository.save(any(Book.class))).thenReturn(book);
+
+        BookDto result = libraryService.returnBook(isbn);
+
+        assertEquals(6, book.getAvailableCopies());
+    }
+
+    @Test
+    void shouldThrowException_IfBorrowingUnavailableBook() {
+        String isbn = "1234567890";
+        Book book = new Book(isbn, "Some Title", "John Doe", 2020, 0, 0L);
+
+        when(mockBookRepository.findById(isbn)).thenReturn(Optional.of(book));
+
+        assertThrows(BookNotAvailableException.class, () -> libraryService.borrowBook(isbn));
+    }
+
 
 }

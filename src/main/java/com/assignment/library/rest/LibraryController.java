@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,4 +57,17 @@ public class LibraryController {
         return libraryService.removeBook(isbn);
     }
 
+    @PutMapping(name="Borrow a book", value="/book/{isbn}/borrow")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> borrowBook(@PathVariable String isbn) {
+        libraryService.borrowBook(isbn);
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).build();
+    }
+
+    @PutMapping(name="Return a book", value="/book/{isbn}/return")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> returnBook(@PathVariable String isbn) {
+        libraryService.returnBook(isbn);
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).build();
+    }
 }

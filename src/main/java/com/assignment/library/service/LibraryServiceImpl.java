@@ -1,19 +1,23 @@
 package com.assignment.library.service;
 
 import com.assignment.library.exception.BookAlreadyExistsException;
+import com.assignment.library.exception.BookNotAvailableException;
 import com.assignment.library.exception.BookNotFoundException;
 import com.assignment.library.model.dto.BookDto;
 import com.assignment.library.model.entity.Book;
 import com.assignment.library.repository.BookRepository;
 import com.assignment.library.util.BookConversionUtil;
 import com.assignment.library.util.CacheEvictionHandler;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -76,12 +80,34 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
+    @Transactional
+    @CachePut(value = BOOK_CACHE_NAME, key = "#isbn")
     public BookDto borrowBook(String isbn) {
-        return null;
+        Book book = findBook(isbn);
+        if (book.getAvailableCopies() == 0) {
+            throw new BookNotAvailableException(format("Book with ISBN %s no longer available.",isbn));
+        }
+        return updateBookAvailability(book, book.getAvailableCopies() - 1);
     }
 
     @Override
+    @Transactional
+    @CachePut(value = BOOK_CACHE_NAME, key = "#isbn")
     public BookDto returnBook(String isbn) {
-        return null;
+        Book book = findBook(isbn);
+        return updateBookAvailability(book, book.getAvailableCopies() + 1);
+    }
+
+    private BookDto updateBookAvailability(Book book, int availableCopies) {
+        book.setAvailableCopies(availableCopies);
+        Book updatedBook = bookRepository.save(book);
+        cacheEvictionHandler.evictCache(BOOK_AUTHOR_CACHE_NAME, updatedBook.getAuthor());
+        return BookConversionUtil.convertToBookDto(updatedBook);
+    }
+
+    private Book findBook(String isbn) {
+        Optional<Book> bookOptional = bookRepository.findById(isbn);
+        return bookOptional.orElseThrow(() -> new BookNotFoundException(format("Book with ISBN %s not found.", isbn)));
+
     }
 }

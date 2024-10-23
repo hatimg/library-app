@@ -1,6 +1,7 @@
 package com.assignment.library.exception.handler;
 
 import com.assignment.library.exception.BookAlreadyExistsException;
+import com.assignment.library.exception.BookNotAvailableException;
 import com.assignment.library.exception.BookNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,13 @@ public class LibraryExceptionHandler {
     @ExceptionHandler(BookNotFoundException.class)
     @ResponseStatus(NOT_FOUND)
     public String handleBookNotFoundException(BookNotFoundException exception) {
+        log.error(exception.getMessage(), exception) ;
+        return exception.getMessage();
+    }
+
+    @ExceptionHandler(BookNotAvailableException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public String handleBookNotAvailableException(BookNotAvailableException exception) {
         log.error(exception.getMessage(), exception) ;
         return exception.getMessage();
     }

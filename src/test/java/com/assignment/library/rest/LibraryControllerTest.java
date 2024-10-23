@@ -87,6 +87,30 @@ class LibraryControllerTest {
         assertEquals(NOT_FOUND, deleteResponse.getStatusCode());
     }
 
+    @Test
+    void borrowingABookShouldDecrementTheAvailableCopies() {
+        BookDto bookDto = createBook("6666", AUTHOR_NAME, 5);
+        ResponseEntity<String> response = testRestTemplate.exchange(format("/library/book/%s/borrow", bookDto.isbn()), HttpMethod.PUT, HttpEntity.EMPTY, String.class);
+        assertEquals(OK, response.getStatusCode());
+    }
+
+    @Test
+    void borrowShouldFail_IfABookHasNoCopiesAvailable() {
+        BookDto bookDto = createBook("7777", AUTHOR_NAME, 0);
+        ResponseEntity<String> response = testRestTemplate.exchange(format("/library/book/%s/borrow", bookDto.isbn()), HttpMethod.PUT, HttpEntity.EMPTY, String.class);
+        assertEquals(NOT_FOUND, response.getStatusCode());
+        assertEquals(format("Book with ISBN %s no longer available.", bookDto.isbn()), response.getBody());
+    }
+
+    @Test
+    void returningABookShouldIncrementTheAvailableCopies() {
+        BookDto bookDto = createBook("8888", AUTHOR_NAME, 1);
+        ResponseEntity<BookDto> response = testRestTemplate.exchange(format("/library/book/%s/return", bookDto.isbn()), HttpMethod.PUT, HttpEntity.EMPTY, BookDto.class);
+        assertEquals(OK, response.getStatusCode());
+    }
+
+
+
     protected BookDto createBook(String isbn, String author, int availableCopies) {
         BookDto bookDto = new BookDto(isbn, BOOK_TITLE, author, PUBLICATION_YEAR, availableCopies);
         testRestTemplate.postForEntity("/library/book", new HttpEntity<>(bookDto), String.class);
