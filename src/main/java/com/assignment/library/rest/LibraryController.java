@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +34,7 @@ public class LibraryController {
             @ApiResponse(responseCode ="201", description = "SUCCESS: Book successfully added"),
             @ApiResponse(responseCode = "409", description = "FAILURE: Book already exists"),
     })
-    public String addBook(@RequestBody BookDto bookDto) {
+    public String addBook(@RequestBody @Valid BookDto bookDto) {
         return libraryService.addBook(bookDto);
     }
 
