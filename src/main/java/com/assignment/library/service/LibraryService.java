@@ -3,7 +3,7 @@ package com.assignment.library.service;
 import com.assignment.library.model.dto.BookDto;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface LibraryService {
     String addBook(@NotNull BookDto bookDto);
@@ -12,7 +12,7 @@ public interface LibraryService {
 
     BookDto findBookByIsbn(String isbn);
 
-    Collection<BookDto> findBooksByAuthor(String author);
+    List<BookDto> findBooksByAuthor(String author);
 
     BookDto borrowBook(String isbn);
 

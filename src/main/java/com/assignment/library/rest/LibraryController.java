@@ -3,14 +3,14 @@ package com.assignment.library.rest;
 import com.assignment.library.model.dto.BookDto;
 import com.assignment.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/library")
@@ -34,4 +34,19 @@ public class LibraryController {
     public String addBook(@RequestBody BookDto bookDto) {
         return libraryService.addBook(bookDto);
     }
+
+    @GetMapping(name="Find a book by ISBN", value="/book/{isbn}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "Find a specific book using ISBN")
+    public BookDto findBookByIsbn(@PathVariable String isbn) {
+        return libraryService.findBookByIsbn(isbn);
+    }
+
+    @GetMapping(name="Find books by Author", value="/author/{author}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "Find all books for an author")
+    public List<BookDto> findBooksByAuthor(@PathVariable String author) {
+        return libraryService.findBooksByAuthor(author);
+    }
+
 }
