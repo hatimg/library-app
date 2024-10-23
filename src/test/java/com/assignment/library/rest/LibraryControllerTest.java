@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -68,6 +69,22 @@ class LibraryControllerTest {
         ResponseEntity<String> response = testRestTemplate.getForEntity(format("/library/author/%s", "John Smith"), String.class);
         assertEquals(NOT_FOUND, response.getStatusCode());
         assertEquals("Books for author John Smith not found.", response.getBody());
+    }
+
+    @Test
+    void shouldDeleteABook() {
+        BookDto bookDto = createBook("2222", AUTHOR_NAME, 5);
+        ResponseEntity<String> deleteResponse = testRestTemplate.exchange(format("/library/book/%s", "2222"), HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
+        assertEquals(OK, deleteResponse.getStatusCode());
+        assertEquals(format("Book with ISBN %s deleted.", "2222"), deleteResponse.getBody());
+
+    }
+
+    @Test
+    void deleteShouldGiveMessage_IfBookNotPresent() {
+        ResponseEntity<String> deleteResponse = testRestTemplate.exchange(format("/library/book/%s", "999999"), HttpMethod.DELETE, HttpEntity.EMPTY, String.class);
+        assertEquals(format("Book with ISBN %s not found.", "999999"), deleteResponse.getBody());
+        assertEquals(NOT_FOUND, deleteResponse.getStatusCode());
     }
 
     protected BookDto createBook(String isbn, String author, int availableCopies) {

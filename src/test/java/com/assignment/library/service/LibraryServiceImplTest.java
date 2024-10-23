@@ -5,6 +5,7 @@ import com.assignment.library.exception.BookNotFoundException;
 import com.assignment.library.model.dto.BookDto;
 import com.assignment.library.model.entity.Book;
 import com.assignment.library.repository.BookRepository;
+import com.assignment.library.util.CacheEvictionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,9 +30,12 @@ class LibraryServiceImplTest {
     @Mock
     private BookRepository mockBookRepository;
 
+    @Mock
+    private CacheEvictionHandler mockCacheEvictionHandler;
+
     @BeforeEach
     public void setUp() {
-        libraryService = new LibraryServiceImpl(mockBookRepository);
+        libraryService = new LibraryServiceImpl(mockBookRepository, mockCacheEvictionHandler);
     }
 
     @Test
@@ -107,4 +112,28 @@ class LibraryServiceImplTest {
         assertThrows(BookNotFoundException.class, () -> libraryService.findBooksByAuthor(author));
         verify(mockBookRepository).findByAuthor(author);
     }
+
+    @Test
+    void shouldRemoveBookSuccessfully() {
+        String isbn = "123";
+        Book book = new Book(isbn, "Title", "Will Smith", 2024, 5, 0L);
+
+        when(mockBookRepository.findById(isbn)).thenReturn(Optional.of(book));
+
+        String result = libraryService.removeBook(isbn);
+
+        assertEquals(format("Book with ISBN %s deleted.", isbn), result);
+        verify(mockBookRepository).delete(book);
+        verify(mockCacheEvictionHandler).evictCache(eq("booksByAuthorCache"), eq("Will Smith"));
+    }
+
+    @Test
+    void shouldThrowException_WhenRemovingNonExistentBook() {
+        String isbn = "1234567890";
+
+        when(mockBookRepository.findById(isbn)).thenReturn(Optional.empty());
+
+        assertThrows(BookNotFoundException.class, () -> libraryService.removeBook(isbn));
+    }
+
 }

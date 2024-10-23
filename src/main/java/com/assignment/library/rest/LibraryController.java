@@ -49,4 +49,10 @@ public class LibraryController {
         return libraryService.findBooksByAuthor(author);
     }
 
+    @DeleteMapping(name="Delete a book", value="/book/{isbn}")
+    @ResponseStatus(HttpStatus.OK)
+    public String removeBook(@PathVariable String isbn) {
+        return libraryService.removeBook(isbn);
+    }
+
 }
